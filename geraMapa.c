@@ -1,5 +1,5 @@
 /*
-	Mapa (Condições:
+	Mapa (Condições):
 		-Gás natural sobre petróleo e sempre abaixo de rocha (ou outro material sólido)
 		-Sílica (pura) em concentrações pequenas, baixa probabilidade de grandes volumes
 		1º nível:
@@ -81,9 +81,9 @@ void imprimeMapa(Mapa *mp){
 
 	printf("%d %d %d\n", mp->l, mp->c, mp->p);
 
-	for(l = 0; l < mp->l; l++){
-		for(c = 0; c < mp->c; c++){
-			for(p = 0; p < mp->p; p++){
+	for(p = 0; p < mp->p; p++){
+		for(l = 0; l < mp->l; l++){
+			for(c = 0; c < mp->c; c++){
 				printf("%d ", mp->mapa[l][c][p]);
 			}
 			printf("\n");
