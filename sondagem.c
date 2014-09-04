@@ -16,45 +16,8 @@ typedef struct{
 	int l,c,p;
 }Mapeamento;
 
-void alocaMapeamento(Mapeamento *mp);
-
-void preencheMapeamento(Mapeamento *mp, char *argv[]);
-
-void imprimeMapeamento(Mapeamento *mp);
-
-//Retorna o ponto mais profundo da área mapeada do mar
-Ponto maiorProfundidadeMar(Mapeamento *mp);
-
-//"Retorna" o array compostos com os compostos distintos. A quantidade de compostos é o tamanho do array.
-void qtdCompostosDistintos(Mapeamento *mp, List *compostos);
-
-void addComposto(int composto, List *compostos);
-
-//Formata o texto da questão 2
-void formatQuestao2(List *compostos);
-
-int main(int argc, char *argv[]){
-	Mapeamento mp;
-	mp.l = atoi(argv[1]);
-	mp.c = atoi(argv[2]);
-	mp.p = atoi(argv[3]);
-
-	alocaMapeamento(&mp);
-	preencheMapeamento(&mp, argv);
-	// imprimeMapeamento(&mp);
-
-	//Questão 1
-	Ponto maisProfundo = maiorProfundidadeMar(&mp);
-	printf("Área explorada de %dKm² com maior profundidade na coordenada: %dx%d\n", mp.l*mp.c*10, maisProfundo.x, maisProfundo.y);
-
-	//Questão 2
-	List compostos;
-	initializeList(&compostos);
-	qtdCompostosDistintos(&mp, &compostos);
-	printf("\nCompostos distintos identificados: %d (", compostos.size);
-	formatQuestao2(&compostos);
-	printf(")\n");
-
+void leTamanhoMapeamento(int *l, int *c, int *p){
+	scanf("%d %d %d", l, c, p);
 }
 
 void alocaMapeamento(Mapeamento *mp){
@@ -71,14 +34,14 @@ void alocaMapeamento(Mapeamento *mp){
 	return;
 }
 
-void preencheMapeamento(Mapeamento *mp, char *argv[]){
+void preencheMapeamento(Mapeamento *mp){
 	int l, c, p, a = 4;
 
 	for(p = 0; p < mp->p; p++){
 		for(l = 0; l < mp->l; l++){
 			for(c = 0; c < mp->c; c++){
 				Ponto pt;
-				pt.valor = atoi(argv[a]);
+				scanf("%d", &pt.valor);
 				pt.x = l;
 				pt.y = c;
 				pt.z = p;
@@ -112,28 +75,13 @@ Ponto maiorProfundidadeMar(Mapeamento *mp){
 	for(p = 0; p < mp->p; p++){
 		for(l = 0; l < mp->l; l++){
 			for(c = 0; c < mp->c; c++){
-				if(mp->mapa[l][c][p].z > maisProfundo.z){
+				if((mp->mapa[l][c][p].valor == 0) && (mp->mapa[l][c][p].z > maisProfundo.z)){
 					maisProfundo = mp->mapa[l][c][p];
 				}
 			}
 		}
 	}
-
 	return maisProfundo;
-}
-
-void qtdCompostosDistintos(Mapeamento *mp, List *compostos){
-	int l,c,p;
-
-	for(p = 0; p < mp->p; p++){
-		for(l = 0; l < mp->l; l++){
-			for(c = 0; c < mp->c; c++){
-				Ponto composto = mp->mapa[l][c][p];
-				addComposto(composto.valor, compostos);
-			}
-		}
-	}
-	return;
 }
 
 void addComposto(int composto, List *compostos){
@@ -151,6 +99,20 @@ void addComposto(int composto, List *compostos){
 	addList(composto, compostos);
 }
 
+void qtdCompostosDistintos(Mapeamento *mp, List *compostos){
+	int l,c,p;
+
+	for(p = 0; p < mp->p; p++){
+		for(l = 0; l < mp->l; l++){
+			for(c = 0; c < mp->c; c++){
+				Ponto composto = mp->mapa[l][c][p];
+				addComposto(composto.valor, compostos);
+			}
+		}
+	}
+	return;
+}
+
 void formatQuestao2(List *compostos){
 	int i;
 	for(i = 1; i <= compostos->size; i++){
@@ -162,4 +124,33 @@ void formatQuestao2(List *compostos){
 			printf("%s, ", COMPOSTOS[compostos->vector[i]]);
 		}
 	}
+}
+
+void compostosMaiorVolume(List *compostos){
+	
+}
+
+int main(int argc, char *argv[]){
+	Mapeamento mp;
+	leTamanhoMapeamento(&mp.l, &mp.c, &mp.p);
+
+	alocaMapeamento(&mp);
+	preencheMapeamento(&mp);
+	// imprimeMapeamento(&mp);
+
+	//Questão 1
+	Ponto maisProfundo = maiorProfundidadeMar(&mp);
+	printf("Área explorada de %dKm² com maior profundidade na coordenada: %dx%d\n", mp.l*mp.c*10, maisProfundo.x, maisProfundo.y);
+
+	//Questão 2
+	List compostos;
+	initializeList(&compostos);
+	qtdCompostosDistintos(&mp, &compostos);
+	printf("Compostos distintos identificados: %d (", compostos.size);
+	formatQuestao2(&compostos);
+	printf(")\n");
+	freeList(compostos);
+
+	//Questão 4
+
 }

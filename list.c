@@ -8,8 +8,19 @@ typedef struct
 	int size;
 }List;
 
+void freeList(List *list){
+	int size = 0;
+	free(list->vector);
+}
+
 void initializeList(List *list){
-	list->size = 0; //First item is head node
+	//If the list is new, the vector is NULL
+	if(list->vector==NULL){
+		list->size = 0; //First item is head node
+	}else{
+		//If it's not NULL, free the memory
+		freeList(list);
+	}
 	list->vector = (ListType *) malloc(sizeof(ListType));
 }
 
