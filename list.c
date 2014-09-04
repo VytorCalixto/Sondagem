@@ -2,7 +2,7 @@
 
 typedef int ListType;
 
-typedef struct 
+typedef struct
 {
 	ListType *vector;
 	int size;
@@ -17,4 +17,11 @@ void addList(ListType e, List *list){
 	list->size++;
 	list->vector = (ListType *) realloc(list->vector, sizeof(ListType) * (list->size+1));
 	list->vector[list->size] = e;
+}
+
+void printList(List *list){
+	int i;
+	for(i = 1; i <= list->size; i++){
+		printf("%d ", list->vector[i]);
+	}
 }

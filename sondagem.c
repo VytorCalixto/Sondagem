@@ -3,8 +3,8 @@
 #include "list.c" //TAD Lista
 
 const char *COMPOSTOS[256] = {"agua", "gas natural", "petroleo", "carvao", "xisto", "rocha", "uranio", "silica", "ouro", "diamante"};
- 
-typedef struct 
+
+typedef struct
 {
 	//Valor (0-255) e coordenadas (x,y,z)
 	int valor, x, y, z;
