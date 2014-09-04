@@ -126,8 +126,19 @@ void formatQuestao2(List *compostos){
 	}
 }
 
-void compostosMaiorVolume(List *compostos){
-	
+void compostosMaiorVolume(Mapeamento *mp, List *compostos){
+	int qtd[compostos->size], i, l, c, p;
+	for(i = 0; i < compostos->size; i++){
+
+		for(p = 0; p < mp->p; p++){
+			for(l = 0; l < mp->l; l++){
+				for(c = 0; c < mp->c; c++){
+					//TODO: Stuff
+				}
+			}
+		}
+
+	}
 }
 
 int main(int argc, char *argv[]){
@@ -140,7 +151,7 @@ int main(int argc, char *argv[]){
 
 	//Questão 1
 	Ponto maisProfundo = maiorProfundidadeMar(&mp);
-	printf("Área explorada de %dKm² com maior profundidade na coordenada: %dx%d\n", mp.l*mp.c*10, maisProfundo.x, maisProfundo.y);
+	printf("Área explorada de %dKm² com maior profundidade na coordenada: %d x %d\n", mp.l*mp.c*10, maisProfundo.x, maisProfundo.y);
 
 	//Questão 2
 	List compostos;
