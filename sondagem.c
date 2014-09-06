@@ -1,72 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "list.c" //TAD Lista
+#include "mapeamento.c" //Tipo Mapeamento e Ponto
 
 const char *COMPOSTOS[256] = {"agua", "gas natural", "petroleo", "carvao", "xisto", "rocha", "uranio", "silica", "ouro", "diamante"};
-
-typedef struct
-{
-	//Valor (0-255) e coordenadas (x,y,z)
-	int valor, x, y, z;
-}Ponto;
-
-typedef struct{
-	Ponto ***mapa;
-	//Dimensões do mapeamento, [l]inha, [c]oluna e [p]rofundidade
-	int l,c,p;
-}Mapeamento;
-
-void leTamanhoMapeamento(int *l, int *c, int *p){
-	scanf("%d %d %d", l, c, p);
-}
-
-void alocaMapeamento(Mapeamento *mp){
-	int i,j,k;
-	mp->mapa = (Ponto ***) malloc(sizeof(Ponto**) * mp->l);
-
-	for(i=0; i < mp->l; i++){
-		mp->mapa[i] = (Ponto **) malloc(sizeof(Ponto*) * mp->c);
-		for(j=0; j < mp->c; j++){
-			mp->mapa[i][j] = (Ponto *) malloc(sizeof(Ponto) * mp->p);
-		}
-	}
-
-	return;
-}
-
-void preencheMapeamento(Mapeamento *mp){
-	int l, c, p, a = 4;
-
-	for(p = 0; p < mp->p; p++){
-		for(l = 0; l < mp->l; l++){
-			for(c = 0; c < mp->c; c++){
-				Ponto pt;
-				scanf("%d", &pt.valor);
-				pt.x = l;
-				pt.y = c;
-				pt.z = p;
-				mp->mapa[l][c][p] = pt;
-				a++;
-			}
-		}
-	}
-
-	return;
-}
-
-void imprimeMapeamento(Mapeamento *mp){
-	int l, c, p;
-	for(p = 0; p < mp->p; p++){
-		for(l = 0; l < mp->l; l++){
-			for(c = 0; c < mp->c; c++){
-				printf("%d", mp->mapa[l][c][p].valor);
-			}
-			printf("\n");
-		}
-	}
-
-	return;
-}
 
 Ponto maiorProfundidadeMar(Mapeamento *mp){
 	Ponto maisProfundo = mp->mapa[0][0][0];
@@ -87,10 +24,13 @@ Ponto maiorProfundidadeMar(Mapeamento *mp){
 void addComposto(int composto, List *compostos){
 	int i;
 
+	//Se o composto for Água, retornamos
 	if(composto == 0){
 		return;
 	}
-	//i começa em 1, pois 0 é nodo cabeça
+	/*i começa em 1, pois 0 é nodo cabeça
+	* Se já encontrarmos o composto no vetor, retornamos
+	*/
 	for(i = 1; i <= compostos->size; i++){
 		if((compostos->vector[i] == composto)){
 			return;
@@ -147,7 +87,7 @@ int main(int argc, char *argv[]){
 
 	alocaMapeamento(&mp);
 	preencheMapeamento(&mp);
-	// imprimeMapeamento(&mp);
+	imprimeMapeamento(&mp);
 
 	//Questão 1
 	Ponto maisProfundo = maiorProfundidadeMar(&mp);
@@ -158,9 +98,9 @@ int main(int argc, char *argv[]){
 	initializeList(&compostos);
 	qtdCompostosDistintos(&mp, &compostos);
 	printf("Compostos distintos identificados: %d (", compostos.size);
-	formatQuestao2(&compostos);
+	// formatQuestao2(&compostos);
 	printf(")\n");
-	freeList(compostos);
+	// freeList(&compostos);
 
 	//Questão 4
 
