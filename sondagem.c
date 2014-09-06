@@ -68,7 +68,7 @@ void formatQuestao2(List *compostos){
 	}
 }
 
-void compostosMaiorVolume(Mapeamento *mp, List *compostos, int tresMaiores[3]){
+void compostosMaiorVolume(Mapeamento *mp, List *compostos, int tresMaiores[3][2]){
 	int qtd[compostos->size];
 	int i, l, c, p;
 
@@ -77,8 +77,10 @@ void compostosMaiorVolume(Mapeamento *mp, List *compostos, int tresMaiores[3]){
 		qtd[i] = 0;
 	}
 
-	for(i = 0; i < 3; i++){
-		tresMaiores[i] = -1;
+	for(l = 0; l < 3; l++){
+		for(c = 0; c < 2; c++){
+			tresMaiores[l][c] = 0;
+		}
 	}
 
 	for(i = 1; i <= compostos->size; i++){
@@ -100,15 +102,21 @@ void compostosMaiorVolume(Mapeamento *mp, List *compostos, int tresMaiores[3]){
 	}
 
 	for(i = 1; i <= compostos->size; i++){
-		if(qtd[i] > tresMaiores[0]){
-			tresMaiores[2] = tresMaiores[1];
-			tresMaiores[1] = tresMaiores[0];
-			tresMaiores[0] = compostos->vector[i];
-		}else if(qtd[i] > tresMaiores[1]){
-			tresMaiores[2] = tresMaiores[1];
-			tresMaiores[1] = compostos->vector[i];
-		}else if(qtd[i] > tresMaiores[2]){
-			tresMaiores[2] = compostos->vector[i];
+		if(qtd[i] > tresMaiores[0][1]){
+			tresMaiores[2][0] = tresMaiores[1][0];
+			tresMaiores[2][1] = tresMaiores[1][1];
+			tresMaiores[1][0] = tresMaiores[0][0];
+			tresMaiores[1][1] = tresMaiores[0][1];
+			tresMaiores[0][0] = compostos->vector[i];
+			tresMaiores[0][1] = qtd[i];
+		}else if(qtd[i] > tresMaiores[1][1]){
+			tresMaiores[2][0] = tresMaiores[1][0];
+			tresMaiores[2][1] = tresMaiores[1][1];
+			tresMaiores[1][0] = compostos->vector[i];
+			tresMaiores[1][1] = qtd[i];
+		}else if(qtd[i] > tresMaiores[2][1]){
+			tresMaiores[2][0] = compostos->vector[i];
+			tresMaiores[2][1] = qtd[i];
 		}
 	}
 }
@@ -135,8 +143,14 @@ int main(int argc, char *argv[]){
 	// freeList(&compostos);
 
 	//Questão 4
-	int tresMaiores[3];
+	/*Três compostos com maior volume.
+	* Vetor com três linhas e duas colunas.
+	* [composto][qtd]
+	* [composto][qtd]
+	* [composto][qtd]
+	*/
+	int tresMaiores[3][2];
 	compostosMaiorVolume(&mp, &compostos, tresMaiores);
 	printf("Os 3 maiores compostos com maior volume em ordem crescente: %s, %s e %s",
-					COMPOSTOS[tresMaiores[2]], COMPOSTOS[tresMaiores[1]], COMPOSTOS[tresMaiores[0]]);
+					COMPOSTOS[tresMaiores[2][0]], COMPOSTOS[tresMaiores[1][0]], COMPOSTOS[tresMaiores[0][0]]);
 }
