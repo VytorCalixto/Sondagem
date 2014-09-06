@@ -9,17 +9,18 @@ typedef struct
 }List;
 
 void freeList(List *list){
-	int size = 0;
+	list->size = 0;
 	free(list->vector);
 }
 
 void initializeList(List *list){
-	//If the list is new, the vector is NULL
-	if(list->vector==NULL){
-		list->size = 0; //First item is head node
-	}else{
-		//If it's not NULL, free the memory
+	// printf("%p\n", list->vector);
+	//If the vector isn't NULL, there's something in there
+	if(list->vector != NULL){
 		freeList(list);
+	}else{
+		//If it's NULL, it's new
+		list->size = 0; //First item is head node, so size is 0
 	}
 	list->vector = (ListType *) malloc(sizeof(ListType));
 }
@@ -32,6 +33,7 @@ void addList(ListType e, List *list){
 
 void printList(List *list){
 	int i;
+	//i starts in 1. 0 is head node
 	for(i = 1; i <= list->size; i++){
 		printf("%d ", list->vector[i]);
 	}

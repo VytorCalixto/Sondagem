@@ -5,6 +5,7 @@
 
 const char *COMPOSTOS[256] = {"agua", "gas natural", "petroleo", "carvao", "xisto", "rocha", "uranio", "silica", "ouro", "diamante"};
 
+//Retorna o ponto mais profundo mapeado
 Ponto maiorProfundidadeMar(Mapeamento *mp){
 	Ponto maisProfundo = mp->mapa[0][0][0];
 	int l, c, p;
@@ -21,6 +22,7 @@ Ponto maiorProfundidadeMar(Mapeamento *mp){
 	return maisProfundo;
 }
 
+//Adiciona um composto não repetido em uma lista
 void addComposto(int composto, List *compostos){
 	int i;
 
@@ -66,28 +68,58 @@ void formatQuestao2(List *compostos){
 	}
 }
 
-void compostosMaiorVolume(Mapeamento *mp, List *compostos){
-	int qtd[compostos->size], i, l, c, p;
-	for(i = 0; i < compostos->size; i++){
+void compostosMaiorVolume(Mapeamento *mp, List *compostos, int tresMaiores[3]){
+	int qtd[compostos->size];
+	int i, l, c, p;
+
+	//Inicia o vetor de quantidades com 0;
+	for(i = 1; i <= compostos->size; i++){
+		qtd[i] = 0;
+	}
+
+	for(i = 0; i < 3; i++){
+		tresMaiores[i] = -1;
+	}
+
+	for(i = 1; i <= compostos->size; i++){
 
 		for(p = 0; p < mp->p; p++){
 			for(l = 0; l < mp->l; l++){
 				for(c = 0; c < mp->c; c++){
-					//TODO: Stuff
+					/*Se o elemento da posição [l]inha, [c]oluna, [p]rofundidade
+					* for igual ao composto na posição i do vetor de compostos
+					* somamos 1 na posição i do vetor de quantidades
+					*/
+					if(mp->mapa[l][c][p].valor == compostos->vector[i]){
+						qtd[i]+=1;
+					}
 				}
 			}
 		}
 
 	}
+
+	for(i = 1; i <= compostos->size; i++){
+		if(qtd[i] > tresMaiores[0]){
+			tresMaiores[2] = tresMaiores[1];
+			tresMaiores[1] = tresMaiores[0];
+			tresMaiores[0] = compostos->vector[i];
+		}else if(qtd[i] > tresMaiores[1]){
+			tresMaiores[2] = tresMaiores[1];
+			tresMaiores[1] = compostos->vector[i];
+		}else if(qtd[i] > tresMaiores[2]){
+			tresMaiores[2] = compostos->vector[i];
+		}
+	}
 }
 
 int main(int argc, char *argv[]){
 	Mapeamento mp;
-	leTamanhoMapeamento(&mp.l, &mp.c, &mp.p);
 
+	leTamanhoMapeamento(&mp.l, &mp.c, &mp.p);
 	alocaMapeamento(&mp);
 	preencheMapeamento(&mp);
-	imprimeMapeamento(&mp);
+	// imprimeMapeamento(&mp);
 
 	//Questão 1
 	Ponto maisProfundo = maiorProfundidadeMar(&mp);
@@ -98,10 +130,13 @@ int main(int argc, char *argv[]){
 	initializeList(&compostos);
 	qtdCompostosDistintos(&mp, &compostos);
 	printf("Compostos distintos identificados: %d (", compostos.size);
-	// formatQuestao2(&compostos);
+	formatQuestao2(&compostos);
 	printf(")\n");
 	// freeList(&compostos);
 
 	//Questão 4
-
+	int tresMaiores[3];
+	compostosMaiorVolume(&mp, &compostos, tresMaiores);
+	printf("Os 3 maiores compostos com maior volume em ordem crescente: %s, %s e %s",
+					COMPOSTOS[tresMaiores[2]], COMPOSTOS[tresMaiores[1]], COMPOSTOS[tresMaiores[0]]);
 }
