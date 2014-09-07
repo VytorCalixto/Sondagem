@@ -53,10 +53,11 @@ void imprimeMapeamento(Mapeamento *mp){
   for(p = 0; p < mp->p; p++){
     for(l = 0; l < mp->l; l++){
       for(c = 0; c < mp->c; c++){
-        printf("%d", mp->mapa[l][c][p].valor);
+        printf("%d ", mp->mapa[l][c][p].valor);
       }
       printf("\n");
     }
+    printf("\n");
   }
 
   return;

@@ -1,74 +1,57 @@
 /*
-	Mapa (Condições):
-		-Gás natural sobre petróleo e sempre abaixo de rocha (ou outro material sólido)
-		-Sílica (pura) em concentrações pequenas, baixa probabilidade de grandes volumes
-		1º nível:
-			Quase 100% água (0), baixa probabilidade de rocha (5)
-		2º-5º níveis:
-			Maiores probabilidades para materiais sólidos (comuns e/ou preciosos - exceto diamante).
-		6º-10º níveis:
-			Maior probabilidade para combustíveis fósseis. Maior probabilidade para diamante, mas ainda assim, baixa.
-			Baixa probabilidade para água.
-		11º-15º níveis:
-			Maior probabilidade para diamante, combustíveis fósseis e urânio.
-			Baixíssima probabilidade de água
-		16º-Abaixo:
-			Muitas rochas, baixa a probabilidade de materiais preciosos, combustíveis fósseis e outros
-
+*	Mapa (Condições):
+*		-Gás natural sobre petróleo e sempre abaixo de rocha (ou outro material sólido)
+*		1º nível:
+*			Quase 100% água (0), baixa probabilidade de rocha (5)
+*		2º-5º níveis:
+*			Maiores probabilidades para materiais sólidos (comuns e/ou preciosos - exceto diamante).
+*		6º-10º níveis:
+*			Maior probabilidade para combustíveis fósseis. Maior probabilidade para diamante, mas ainda assim, baixa.
+*			Baixa probabilidade para água.
+*		11º-15º níveis:
+*			Maior probabilidade para diamante, combustíveis fósseis e urânio.
+*			Baixíssima probabilidade de água
+*		16º-Abaixo:
+*			Muitas rochas, baixa a probabilidade de materiais preciosos, combustíveis fósseis e outros
+*
 */
 
 #include <stdio.h>
 #include <stdlib.h>
-
-typedef struct{
-	int ***mapa;
-	//Dimensões do mapa, [l]inha, [c]oluna e [p]rofundidade
-	int l,c,p;
-}Mapa;
-
-//Recebe um mapa e aloca em memória
-void alocaMapa(Mapa *mp);
+#include <time.h>
+#include "mapeamento.c"
 
 //Gera um mapa randômico
-void geraMapa(Mapa *mp);
+void geraMapeamento(Mapeamento *mp);
 
-//Imprime um mapa na saída padrão
-void imprimeMapa(Mapa *mp);
-
+void geraPonto(Mapeamento *mp, Ponto *pontoAtual);
 
 int main(int argc, char *argv[]){
-	Mapa mp;
-	mp.l = atoi(argv[1]);
-	mp.c = atoi(argv[2]);
-	mp.p = atoi(argv[3]);
-
-	geraMapa(&mp);
-	imprimeMapa(&mp);
-}
-
-void alocaMapa(Mapa *mp){
-	int i,j,k;
-	mp->mapa = (int ***) malloc(sizeof(int**) * mp->l);
-
-	for(i=0; i < mp->l; i++){
-		mp->mapa[i] = (int **) malloc(sizeof(int*) * mp->c);
-		for(j=0; j < mp->c; j++){
-			mp->mapa[i][j] = (int *) malloc(sizeof(int) * mp->p);
-		}
+	srand(time(NULL));
+	Mapeamento mp;
+	if(argc >= 4){
+		mp.l = atoi(argv[1]);
+		mp.c = atoi(argv[2]);
+		mp.p = atoi(argv[3]);
+	}else{
+		scanf("%d %d %d", &mp.l, &mp.c, &mp.p);
 	}
 
-	return;
+	geraMapeamento(&mp);
+	imprimeMapeamento(&mp);
 }
 
-void geraMapa(Mapa *mp){
-	alocaMapa(mp);
+void geraMapeamento(Mapeamento *mp){
+	alocaMapeamento(mp);
 	int l, c, p;
 
 	for(l = 0; l < mp->l; l++){
 		for(c = 0; c < mp->c; c++){
 			for(p = 0; p < mp->p; p++){
 				//Fazer algoritmo
-				mp->mapa[l][c][p] = l+c+p;
+				Ponto pt = {0, l, c, p};
+				geraPonto(mp, &pt);
+				mp->mapa[l][c][p] = pt;
 			}
 		}
 	}
@@ -76,18 +59,70 @@ void geraMapa(Mapa *mp){
 	return;
 }
 
-void imprimeMapa(Mapa *mp){
-	int l, c, p;
-
-	printf("%d %d %d\n", mp->l, mp->c, mp->p);
-
-	for(p = 0; p < mp->p; p++){
-		for(l = 0; l < mp->l; l++){
-			for(c = 0; c < mp->c; c++){
-				printf("%d ", mp->mapa[l][c][p]);
+void geraPonto(Mapeamento *mp, Ponto *pontoAtual){
+	int x = pontoAtual->x;
+	int y = pontoAtual->y;
+	int p = pontoAtual->z;
+	int a, b;
+	switch (p){
+		case 0:
+			a = rand() % 1000;
+			if(a == 0){
+				pontoAtual->valor = 5;
+			}else{
+				pontoAtual->valor = 0;
 			}
-			printf("\n");
-		}
+			break;
+
+		case 1 ... 5:
+			if(mp->mapa[x][y][p-1].valor == 0){ //Água em cima
+				a = rand() % 5;
+				if(a != 0){
+					pontoAtual->valor = 0;
+				}else{
+					b = (rand() % 10) + 1;
+					while((b == 1 || b == 2)){
+						b = (rand() % 10) + 1;
+					}
+					pontoAtual->valor = b;
+				}
+			}else{
+				a = rand() % 10;
+				if(a != 0){
+					pontoAtual->valor = mp->mapa[x][y][p-1].valor;
+				}else{
+					b = (rand() % 255) + 1;
+					pontoAtual->valor = b;
+				}
+			}
+			break;
+
+		case 6 ... 10:
+			if(mp->mapa[x][y][p-1].valor == 0){ //Água em cima
+				a = rand() % 5;
+				if(a == 0){
+					pontoAtual->valor = 0;
+				}else{
+					b = (rand() % 10) + 1;
+					while((b == 1 || b == 2)){
+						b = (rand() % 10) + 1;
+					}
+					pontoAtual->valor = b;
+				}
+			}else{
+				a = rand() % 33;
+				if(a != 0){
+					pontoAtual->valor = mp->mapa[x][y][p-1].valor;
+				}else{
+					b = (rand() % 255) + 1;
+					pontoAtual->valor = b;
+				}
+			}
+			break;
+
+		default:
+			pontoAtual->valor = 1;
+			break;
 	}
 	return;
 }
