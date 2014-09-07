@@ -16,7 +16,9 @@ void freeList(List *list){
 void initializeList(List *list){
 	// printf("%p\n", list->vector);
 	//If the vector isn't NULL, there's something in there
-	if(list->vector != NULL){
+	if(list->vector == NULL){
+		puts("Vetor nao nulo");
+		printf("\n%p",list->vector);
 		freeList(list);
 	}else{
 		//If it's NULL, it's new
