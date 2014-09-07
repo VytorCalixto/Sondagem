@@ -1,5 +1,4 @@
-typedef struct
-{
+typedef struct{
   //Valor (0-255) e coordenadas (x,y,z)
   int valor, x, y, z;
 }Ponto;
@@ -15,17 +14,32 @@ void leTamanhoMapeamento(int *l, int *c, int *p){
 }
 
 void alocaMapeamento(Mapeamento *mp){
-  int i,j,k;
+  int l,c;
   mp->mapa = (Ponto ***) malloc(sizeof(Ponto**) * mp->l);
 
-  for(i=0; i < mp->l; i++){
-    mp->mapa[i] = (Ponto **) malloc(sizeof(Ponto*) * mp->c);
-    for(j=0; j < mp->c; j++){
-      mp->mapa[i][j] = (Ponto *) malloc(sizeof(Ponto) * mp->p);
+  for(l = 0; l < mp->l; l++){
+    mp->mapa[l] = (Ponto **) malloc(sizeof(Ponto*) * mp->c);
+    for(c = 0; c < mp->c; c++){
+      mp->mapa[l][c] = (Ponto *) malloc(sizeof(Ponto) * mp->p);
     }
   }
 
   return;
+}
+
+void freeMapeamento(Mapeamento *mp){
+  int l, c, p;
+
+  for(l = 0; l < mp->l; l++){
+    for(c = 0; c < mp->c; c++){
+      free(mp->mapa[l][c]);
+    }
+    free(mp->mapa[l]);
+  }
+  // free(mp->mapa);
+  mp->l = 0;
+  mp->c = 0;
+  mp->p = 0;
 }
 
 void preencheMapeamento(Mapeamento *mp){
