@@ -121,6 +121,36 @@ void compostosMaiorVolume(Mapeamento *mp, List *compostos, int tresMaiores[3][2]
 	}
 }
 
+Ponto camadaMaisEspessaPetroleo(Mapeamento *mp, int *camadas){
+	Ponto maisEspesso = mp->mapa[0][0][0];
+	/*maisEspesso é o ponto na camada mais próxima a superfície.
+	* camadas é a quantidade de camadas que o petroleo se estende
+	*/
+	int l, c, p;
+	*camadas = 0;
+
+	for(l = 0; l < mp->l; l++){
+		for(c = 0; c < mp->c; c++){
+			for(p = 0; p < mp->p; p++){
+				if(mp->mapa[l][c][p].valor == 2){
+					int z, qtd = 0;
+					for(z = p; z < mp->p; z++){
+						if(mp->mapa[l][c][z].valor == 2){
+							qtd++;
+						}
+					}
+					if(qtd > *camadas){
+						maisEspesso = mp->mapa[l][c][p];
+						*camadas = qtd;
+					}
+				}
+			}
+		}
+	}
+
+	return maisEspesso;
+}
+
 int main(int argc, char *argv[]){
 	Mapeamento mp;
 
@@ -140,17 +170,30 @@ int main(int argc, char *argv[]){
 	printf("Compostos distintos identificados: %d (", compostos.size);
 	formatQuestao2(&compostos);
 	printf(")\n");
-	// freeList(&compostos);
+
+	//Questão 3
 
 	//Questão 4
 	/*Três compostos com maior volume.
-	* Vetor com três linhas e duas colunas.
+	* Vetor tresCompostos com três linhas e duas colunas.
 	* [composto][qtd]
 	* [composto][qtd]
 	* [composto][qtd]
 	*/
 	int tresMaiores[3][2];
 	compostosMaiorVolume(&mp, &compostos, tresMaiores);
-	printf("Os 3 maiores compostos com maior volume em ordem crescente: %s, %s e %s",
+	printf("Os 3 maiores compostos com maior volume em ordem crescente: %s, %s e %s\n",
 					COMPOSTOS[tresMaiores[2][0]], COMPOSTOS[tresMaiores[1][0]], COMPOSTOS[tresMaiores[0][0]]);
+	freeList(&compostos);
+
+	//Questão 5
+	int camadas;
+	Ponto maisEspesso = camadaMaisEspessaPetroleo(&mp, &camadas);
+	printf("Coordenada com a maior espessura de uma camada contínua de petróleo: ");
+	printf("%d x %d com %d metros\n", maisEspesso.x, maisEspesso.y, camadas*1000);
+
+	//Questão 6
+	//Questão 7
+	//Questão 8
+	//Questão 9
 }
