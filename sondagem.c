@@ -240,6 +240,7 @@ bool pontoEstaNoMapa(Mapeamento *mp, Ponto *pt){
 	return true;
 }
 
+//Retorn quantas vezes a função foi chamada (ou quantos pontos alvo foram trocados)
 int floodFill2D(Mapeamento *mp, Ponto *pt, int compostoAlvo, int valorReposicao){
 	int execucoes = 0; //quantas vezes ele foi executado
 	if(!pontoEstaNoMapa(mp, pt)){
@@ -279,6 +280,64 @@ int floodFill2D(Mapeamento *mp, Ponto *pt, int compostoAlvo, int valorReposicao)
 	return execucoes;
 }
 
+//Mesma coisa que o 2D, mas com 3 dimensões.
+int floodFill3D(Mapeamento *mp, Ponto *pt, int compostoAlvo, int valorReposicao){
+	int execucoes = 0;
+	if(!pontoEstaNoMapa(mp, pt)){
+		return;
+	}
+	if(pt->valor == valorReposicao){
+		return;
+	}
+	if(pt->valor != compostoAlvo){
+		return;
+	}
+	int x = pt->x;
+	int y = pt->y;
+	int z = pt->z;
+	mp->mapa[x][y][z].valor = valorReposicao;
+
+	Ponto acima = {0, x, y, z-1}; //valor, x, y, z
+	if(pontoEstaNoMapa(mp, &acima)){
+		acima = mp->mapa[x][y][z-1];
+	}
+
+	Ponto abaixo = {0, x, y, z+1};
+	if(pontoEstaNoMapa(mp, &abaixo)){
+		abaixo = mp->mapa[x][y][z+1];
+	}
+
+	Ponto esq = {0, x, y-1, z};
+	if(pontoEstaNoMapa(mp, &esq)){
+		esq = mp->mapa[x][y-1][z];
+	}
+
+	Ponto dir = {0, x, y+1, z};
+	if(pontoEstaNoMapa(mp, &dir)){
+		dir = mp->mapa[x][y+1][z];
+	}
+
+	Ponto cima = {0, x-1, y, z};
+	if(pontoEstaNoMapa(mp, &cima)){
+		cima = mp->mapa[x-1][y][z];
+	}
+
+	Ponto baixo = {0, x+1, y, z};
+	if(pontoEstaNoMapa(mp, &baixo)){
+		baixo = mp->mapa[x+1][y][z];
+	}
+
+	execucoes += floodFill3D(mp, &esq, compostoAlvo, valorReposicao);
+	execucoes += floodFill3D(mp, &dir, compostoAlvo, valorReposicao);
+	execucoes += floodFill3D(mp, &cima, compostoAlvo, valorReposicao);
+	execucoes += floodFill3D(mp, &baixo, compostoAlvo, valorReposicao);
+
+	execucoes += floodFill3D(mp, &acima, compostoAlvo, valorReposicao);
+	execucoes += floodFill3D(mp, &abaixo, compostoAlvo, valorReposicao);
+
+	return execucoes;
+}
+
 int profundidadeMaisPetroleoConexo(Mapeamento *mp){
 	int l, c, p;
 	Mapeamento petroleo;
@@ -300,7 +359,7 @@ int profundidadeMaisPetroleoConexo(Mapeamento *mp){
 			}
 		}
 	}
-
+	freeMapeamento(&petroleo);
 	return profundidade[0];
 }
 
@@ -357,6 +416,15 @@ int main(int argc, char *argv[]){
 	printf("Profundidade com a maior área conexa de petróleo: %d metros\n", profundidade*1000);
 
 	//Questão 7
+	Mapeamento petroleo;
+	equalizeMapeamento(&mp, &petroleo);
+	Ponto pt = petroleo.mapa[2][1][2];
+	int volume = floodFill3D(&petroleo, &pt, 2, -1);
+	freeMapeamento(&petroleo);
+	printf("Maior volume de petróleo em região conexa: %dKm³\n",
+				//Cada "cubo" tem dimensões x e y = 10Km e z = 1km. Logo, cada cubo tem 100Km³, ou, 100000000000m³
+				volume*100);
+
 	//Questão 8
 	//Questão 9
 }
