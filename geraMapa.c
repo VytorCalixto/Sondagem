@@ -2,33 +2,37 @@
 *	Mapa (Condições):
 *		-Gás natural sobre petróleo e sempre abaixo de rocha (ou outro material sólido)
 *		1º nível:
-*			Quase 100% água (0), baixa probabilidade de rocha (5)
+*			Água
 *		2º-5º níveis:
-*			Maiores probabilidades para materiais sólidos (comuns e/ou preciosos - exceto diamante).
+*			Rocha (5), metais e basalto. Combustiveis fósseis tem baixos volumes.
 *		6º-10º níveis:
-*			Maior probabilidade para combustíveis fósseis. Maior probabilidade para diamante, mas ainda assim, baixa.
-*			Baixa probabilidade para água.
+*			Sal (11) por quase todas essas camadas.
 *		11º-15º níveis:
-*			Maior probabilidade para diamante, combustíveis fósseis e urânio.
-*			Baixíssima probabilidade de água
+*			Rocha e grandes volumes de combustíveis fósseis
 *		16º-Abaixo:
-*			Muitas rochas, baixa a probabilidade de materiais preciosos, combustíveis fósseis e outros
+*			Muitas rochas, baixa probabilidade de materiais preciosos, combustíveis fósseis e outros
 *
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdbool.h>
 #include "mapeamento.c"
+#include "compostos.c"
 
 //Gera um mapa randômico
 void geraMapeamento(Mapeamento *mp);
 
 void geraPonto(Mapeamento *mp, Ponto *pontoAtual);
 
+bool estaNoArray(int *array, int elemento);
+
 int main(int argc, char *argv[]){
+	iniciaCompostos();
 	srand(time(NULL));
 	Mapeamento mp;
+
 	if(argc >= 4){
 		mp.l = atoi(argv[1]);
 		mp.c = atoi(argv[2]);
@@ -59,6 +63,16 @@ void geraMapeamento(Mapeamento *mp){
 	return;
 }
 
+bool estaNoArray(int *array, int elemento){
+	int i;
+	for(i = 1; i < array[0]; i++){
+		if(array[i] == elemento){
+			return true;
+		}
+	}
+	return false;
+}
+
 void geraPonto(Mapeamento *mp, Ponto *pontoAtual){
 	int x = pontoAtual->x;
 	int y = pontoAtual->y;
@@ -66,62 +80,41 @@ void geraPonto(Mapeamento *mp, Ponto *pontoAtual){
 	int a, b;
 	switch (p){
 		case 0:
-			a = rand() % 1000;
-			if(a == 0){
-				pontoAtual->valor = 5;
-			}else{
-				pontoAtual->valor = 0;
-			}
+			pontoAtual->valor = AGUA;
 			break;
 
 		case 1 ... 5:
-			if(mp->mapa[x][y][p-1].valor == 0){ //Água em cima
-				a = rand() % 5;
+			if(mp->mapa[x][y][p-1].valor == AGUA){
+				a = rand() % 4;
 				if(a != 0){
-					pontoAtual->valor = 0;
+					pontoAtual->valor = AGUA;
 				}else{
-					b = (rand() % 10) + 1;
-					while((b == 1 || b == 2)){
-						b = (rand() % 10) + 1;
+					a = (rand() % 255) + 1;
+					while(!estaNoArray(METAIS, a) && a != ROCHA){
+						a = (rand() % 255) + 1;
 					}
-					pontoAtual->valor = b;
+					pontoAtual->valor = a;
 				}
 			}else{
-				a = rand() % 10;
+				a = rand() % 3;
 				if(a != 0){
 					pontoAtual->valor = mp->mapa[x][y][p-1].valor;
 				}else{
-					b = (rand() % 255) + 1;
-					pontoAtual->valor = b;
+					a = (rand() % 255) + 1;
+					while(!estaNoArray(METAIS, a) && a != ROCHA && !estaNoArray(COMBUSTIVEIS, a)){
+						a = (rand() % 255) + 1;
+					}
+					pontoAtual->valor = a;
 				}
 			}
 			break;
 
 		case 6 ... 10:
-			if(mp->mapa[x][y][p-1].valor == 0){ //Água em cima
-				a = rand() % 5;
-				if(a == 0){
-					pontoAtual->valor = 0;
-				}else{
-					b = (rand() % 10) + 1;
-					while((b == 1 || b == 2)){
-						b = (rand() % 10) + 1;
-					}
-					pontoAtual->valor = b;
-				}
-			}else{
-				a = rand() % 33;
-				if(a != 0){
-					pontoAtual->valor = mp->mapa[x][y][p-1].valor;
-				}else{
-					b = (rand() % 255) + 1;
-					pontoAtual->valor = b;
-				}
-			}
+
 			break;
 
 		default:
-			pontoAtual->valor = 1;
+			pontoAtual->valor = 0;
 			break;
 	}
 	return;

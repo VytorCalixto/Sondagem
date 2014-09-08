@@ -3,8 +3,7 @@
 #include <stdbool.h> //Só funciona no C99 ou maior
 #include "list.c" //TAD Lista
 #include "mapeamento.c" //Tipo Mapeamento e Ponto
-
-const char *COMPOSTOS[256] = {"agua", "gas natural", "petroleo", "carvao", "xisto", "rocha", "uranio", "silica", "ouro", "diamante"};
+#include "compostos.c" //Deinições dos compostos
 
 //Retorna o ponto mais profundo mapeado
 Ponto maiorProfundidadeMar(Mapeamento *mp){
@@ -234,10 +233,7 @@ int *fundoDoMar(Mapeamento *mp){
 }
 
 bool pontoEstaNoMapa(Mapeamento *mp, Ponto *pt){
-	if(pt->x < 0 || pt->x >= mp->l || pt->y < 0 || pt->y >= mp->c || pt->z < 0 || pt->z >= mp->p){
-		return false;
-	}
-	return true;
+	return !(pt->x < 0 || pt->x >= mp->l || pt->y < 0 || pt->y >= mp->c || pt->z < 0 || pt->z >= mp->p);
 }
 
 //Retorn quantas vezes a função foi chamada (ou quantos pontos alvo foram trocados)
@@ -388,6 +384,7 @@ int compostoMaiorVolumeConexo(Mapeamento *mp){
 }
 
 int main(int argc, char *argv[]){
+	iniciaCompostos();
 	Mapeamento mp;
 
 	leTamanhoMapeamento(&mp.l, &mp.c, &mp.p);
@@ -457,6 +454,7 @@ int main(int argc, char *argv[]){
 	int composto = compostoMaiorVolumeConexo(&mp);
 	printf("Dentre os %d compostos encontrados na área, a %s tem o maior volume conexo.\n",
 				compostos.size, COMPOSTOS[composto]);
+
 	freeList(&compostos);
 	freeMapeamento(&mp);
 	return;
