@@ -131,7 +131,7 @@ void compostosMaiorVolume(Mapeamento *mp, List *compostos, int tresMaiores[3][2]
 }
 
 //Retorna o ponto que contém a camada mais espessa de petróleo e coloca em camadas a quantidade de camadas que a coluna de petróleo atravessa.
-Ponto camadaMaisEspessaPetroleo(Mapeamento *mp, int *camadas){
+Ponto camadaMaisEspessaComposto(Mapeamento *mp, int *camadas, int composto){
 	Ponto maisEspesso = mp->mapa[0][0][0];
 	/*maisEspesso é o ponto na camada mais próxima a superfície.
 	* camadas é a quantidade de camadas que o petroleo se estende
@@ -142,10 +142,10 @@ Ponto camadaMaisEspessaPetroleo(Mapeamento *mp, int *camadas){
 	for(l = 0; l < mp->l; l++){
 		for(c = 0; c < mp->c; c++){
 			for(p = 0; p < mp->p; p++){
-				if(mp->mapa[l][c][p].valor == 2){
+				if(mp->mapa[l][c][p].valor == composto){
 					int z, qtd = 0;
 					for(z = p; z < mp->p; z++){
-						if(mp->mapa[l][c][z].valor == 2){
+						if(mp->mapa[l][c][z].valor == composto){
 							qtd++;
 						}
 					}
@@ -407,7 +407,7 @@ int main(int argc, char *argv[]){
 
 	//Questão 5
 	int camadas;
-	Ponto maisEspesso = camadaMaisEspessaPetroleo(&mp, &camadas);
+	Ponto maisEspesso = camadaMaisEspessaComposto(&mp, &camadas, 2);
 	printf("Coordenada com a maior espessura de uma camada contínua de petróleo: ");
 	printf("%d x %d com %d metros\n", maisEspesso.x, maisEspesso.y, camadas*1000);
 
@@ -420,11 +420,15 @@ int main(int argc, char *argv[]){
 	equalizeMapeamento(&mp, &petroleo);
 	Ponto pt = petroleo.mapa[2][1][2];
 	int volume = floodFill3D(&petroleo, &pt, 2, -1);
-	freeMapeamento(&petroleo);
 	printf("Maior volume de petróleo em região conexa: %dKm³\n",
 				//Cada "cubo" tem dimensões x e y = 10Km e z = 1km. Logo, cada cubo tem 100Km³, ou, 100000000000m³
 				volume*100);
 
 	//Questão 8
+	maisEspesso = camadaMaisEspessaComposto(&petroleo, &camadas, -1);
+	printf("Coordenada %d x %d tem a maior espessura da região conexa de petróleo com %d quilômetros cúbicos\n",
+				maisEspesso.x, maisEspesso.y, camadas*100);
+	freeMapeamento(&petroleo);
+
 	//Questão 9
 }
