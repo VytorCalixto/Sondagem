@@ -363,6 +363,30 @@ int profundidadeMaisPetroleoConexo(Mapeamento *mp){
 	return profundidade[0];
 }
 
+int compostoMaiorVolumeConexo(Mapeamento *mp){
+	//array [composto][volume]
+	int compostoMaiorVl[2];
+	int l, c, p;
+
+	for(l = 0; l < mp->l; l++){
+		for(c = 0; c < mp->c; c++){
+			for(p = 0; p < mp->p; p++){
+				Ponto pt = mp->mapa[l][c][p];
+				int volume = 0;
+				if(pt.valor != 0){ //Se não for mar
+					volume = floodFill3D(mp, &pt, pt.valor, -1);
+					if(volume > compostoMaiorVl[1]){
+						compostoMaiorVl[0] = pt.valor;
+						compostoMaiorVl[1] = volume;
+					}
+				}
+			}
+		}
+	}
+
+	return compostoMaiorVl[0];
+}
+
 int main(int argc, char *argv[]){
 	Mapeamento mp;
 
@@ -403,7 +427,6 @@ int main(int argc, char *argv[]){
 	compostosMaiorVolume(&mp, &compostos, tresMaiores);
 	printf("Os 3 maiores compostos com maior volume em ordem crescente: %s, %s e %s\n",
 					COMPOSTOS[tresMaiores[2][0]], COMPOSTOS[tresMaiores[1][0]], COMPOSTOS[tresMaiores[0][0]]);
-	freeList(&compostos);
 
 	//Questão 5
 	int camadas;
@@ -431,4 +454,10 @@ int main(int argc, char *argv[]){
 	freeMapeamento(&petroleo);
 
 	//Questão 9
+	int composto = compostoMaiorVolumeConexo(&mp);
+	printf("Dentre os %d compostos encontrados na área, a %s tem o maior volume conexo.\n",
+				compostos.size, COMPOSTOS[composto]);
+	freeList(&compostos);
+	freeMapeamento(&mp);
+	return;
 }
