@@ -36,7 +36,7 @@ void freeMapeamento(Mapeamento *mp){
     }
     free(mp->mapa[l]);
   }
-  // free(mp->mapa);
+  free(mp->mapa);
   mp->l = 0;
   mp->c = 0;
   mp->p = 0;
@@ -75,4 +75,27 @@ void imprimeMapeamento(Mapeamento *mp){
   }
 
   return;
+}
+
+/* Mapeamento a; leTamanhoMapeamento(&a); alocaMapeamento(&a); etc, etc
+*  Mapeamento b;
+*  b = a; Faz com que b.mapa (Ponto ***) aponte para a.mapa
+*  Quando se modifica b.mapa, modifica-se a.mapa também
+*
+* equalizeMapeamento(a, b) faz com que os valores de b.mapa sejam iguais os de a.mapa, mas eles apontem para locais diferentes de memória.
+*/
+void equalizeMapeamento(Mapeamento *original, Mapeamento *copia){
+  int l, c, p;
+  copia->l = original->l;
+  copia->c = original->c;
+  copia->p = original->p;
+  alocaMapeamento(copia);
+
+  for(l = 0; l < original->l; l++){
+    for(c = 0; c < original->c; c++){
+      for(p = 0; p < original->p; p++){
+        copia->mapa[l][c][p] = original->mapa[l][c][p];
+      }
+    }
+  }
 }
