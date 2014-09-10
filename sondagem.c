@@ -497,7 +497,7 @@ int main(int argc, char *argv[]){
 	//Questão 8
 	maisEspesso = camadaMaisEspessaComposto(&petroleo, &camadas, -1);
 	printf("Coordenada %d x %d tem a maior espessura da regiao conexa de petroleo com %d quilometros cubicos\n",
-				maisEspesso.x, maisEspesso.y, camadas*100);
+				maisEspesso.x, maisEspesso.y, volume*100);
 	freeMapeamento(&petroleo);
 
 	//Questão 9
