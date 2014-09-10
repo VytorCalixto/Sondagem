@@ -348,6 +348,7 @@ int floodFill3D(Mapeamento *mp, Ponto *pt, int compostoAlvo, int valorReposicao)
 	return execucoes;
 }
 
+//Retorna a profundidade que possui mais petroleo conexo
 int profundidadeMaisPetroleoConexo(Mapeamento *mp){
 	int l, c, p;
 	Mapeamento petroleo;
@@ -373,6 +374,7 @@ int profundidadeMaisPetroleoConexo(Mapeamento *mp){
 	return profundidade[0];
 }
 
+//Retorna o volume do maior "agrupamento" (maior região conexa) de um composto
 int maiorVolumeConexoComposto(Mapeamento *mp, int composto){
 	int l, c, p, volume = 0, i = -1;
 	Ponto pontoI = {i,0,0,0}; //ponto que gera um flood fill no maior volume encontrado
@@ -403,6 +405,7 @@ int maiorVolumeConexoComposto(Mapeamento *mp, int composto){
 	return volume;
 }
 
+//Retorna o composto que possui o maior volume conexo
 int compostoMaiorVolumeConexo(Mapeamento *mp){
 	//array [composto][volume]
 	int compostoMaiorVl[2];
