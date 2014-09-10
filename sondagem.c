@@ -12,16 +12,21 @@ bool pontoEstaNoMapa(Mapeamento *mp, Ponto *pt){
 
 //Retorna true se determinado ponto pt é o último ponto com valor AGUA da coluna e abaixo dele há algo diferente de AGUA
 bool isFundoDoMar(Mapeamento *mp, Ponto *pt){
-	Ponto acima = {-1, pt->x, pt->y, pt->z-1};
-	if(pontoEstaNoMapa(mp, &acima)){
-		acima = mp->mapa[pt->x][pt->y][pt->z-1];
-	}
 	Ponto abaixo = {-1, pt->x, pt->y, pt->z+1};
 	if(pontoEstaNoMapa(mp, &abaixo)){
 		abaixo = mp->mapa[pt->x][pt->y][pt->z+1];
 	}
-	//acima.valor == -1 e abaixo.valor == -1 significa que o ponto não está no mapa
-	return (pt->valor == AGUA && (acima.valor == AGUA || acima.valor == -1) && (abaixo.valor != AGUA || abaixo.valor == -1));
+	bool soAguaEmCima = true;
+	int z;
+	for(z  = pt->z; z >= 0; z--){
+		Ponto acima = mp->mapa[pt->x][pt->y][z];
+		if(acima.valor != AGUA){
+			soAguaEmCima = false;
+		}
+	}
+
+	//abaixo.valor == -1 significa que o ponto não está no mapa
+	return (pt->valor == AGUA && soAguaEmCima && (abaixo.valor != AGUA || abaixo.valor == -1));
 }
 
 //Retorna o ponto mais profundo mapeado
@@ -406,6 +411,18 @@ int maiorVolumeConexoComposto(Mapeamento *mp, int composto){
 	}
 
 	floodFill3D(mp, &pontoI, pontoI.valor, -1); //Retorno para -1 para poder reutilizar
+	volume = 0;
+	for(p = 0; p < mp->p; p++){
+		for(l = 0; l < mp->l; l++){
+			for(c = 0; c < mp->c; c++){
+				Ponto pt = mp->mapa[l][c][p];
+				if(pt.valor == -1){
+					volume++;
+				}
+			}
+		}
+	}
+
 	return volume;
 }
 
