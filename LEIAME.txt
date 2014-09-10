@@ -1,0 +1,11 @@
+Vytor dos Santos Bezerra Calixto
+GRR20144434
+vsbc14@inf.ufpr.br
+INSTRUÇÕES:
+  O trabalho utilizou a biblioteca <stdbool.h> para valores booleanos. Essa biblioteca só esta disponível no C99 e superior.
+  Algumas partes do trabalho, como tipos abstratos de dados e definições e operações específicas com structs foram separadas. Existe um arquivo list.c que define o tipo abstrato de dados lista e um mapeamento.c que define o mapa que entra e suas operações.
+
+  Para usar o gerador de mapas execute:
+    $ ./gera x y z
+  Isso vai gerar um arquivo mapa.txt com um mapeamento de dimensões x, y e z.
+  Dica: para z, use valores maiores ou iguais a 10. O mapa fica mais interessante.

@@ -3,8 +3,26 @@
 #include <stdbool.h> //Só funciona no C99 ou maior
 #include "list.c" //TAD Lista
 #include "mapeamento.c" //Tipo Mapeamento e Ponto
+#include "compostos.c" //Deinições dos compostos
 
-const char *COMPOSTOS[256] = {"agua", "gas natural", "petroleo", "carvao", "xisto", "rocha", "uranio", "silica", "ouro", "diamante"};
+//Retorna true se o ponto esta no mapa, false caso contrario
+bool pontoEstaNoMapa(Mapeamento *mp, Ponto *pt){
+	return !(pt->x < 0 || pt->x >= mp->l || pt->y < 0 || pt->y >= mp->c || pt->z < 0 || pt->z >= mp->p);
+}
+
+//Retorna true se determinado ponto pt é o último ponto com valor AGUA da coluna e abaixo dele há algo diferente de AGUA
+bool isFundoDoMar(Mapeamento *mp, Ponto *pt){
+	Ponto acima = {-1, pt->x, pt->y, pt->z-1};
+	if(pontoEstaNoMapa(mp, &acima)){
+		acima = mp->mapa[pt->x][pt->y][pt->z-1];
+	}
+	Ponto abaixo = {-1, pt->x, pt->y, pt->z+1};
+	if(pontoEstaNoMapa(mp, &abaixo)){
+		abaixo = mp->mapa[pt->x][pt->y][pt->z+1];
+	}
+	//acima.valor == -1 e abaixo.valor == -1 significa que o ponto não está no mapa
+	return (pt->valor == AGUA && (acima.valor == AGUA || acima.valor == -1) && (abaixo.valor != AGUA || abaixo.valor == -1));
+}
 
 //Retorna o ponto mais profundo mapeado
 Ponto maiorProfundidadeMar(Mapeamento *mp){
@@ -14,7 +32,8 @@ Ponto maiorProfundidadeMar(Mapeamento *mp){
 	for(p = 0; p < mp->p; p++){
 		for(l = 0; l < mp->l; l++){
 			for(c = 0; c < mp->c; c++){
-				if((mp->mapa[l][c][p].valor == 0) && (mp->mapa[l][c][p].z > maisProfundo.z)){
+				Ponto pt = mp->mapa[l][c][p];
+				if(isFundoDoMar(mp, &pt) && pt.z > maisProfundo.z){
 					maisProfundo = mp->mapa[l][c][p];
 				}
 			}
@@ -145,9 +164,10 @@ Ponto camadaMaisEspessaComposto(Mapeamento *mp, int *camadas, int composto){
 				if(mp->mapa[l][c][p].valor == composto){
 					int z, qtd = 0;
 					for(z = p; z < mp->p; z++){
-						if(mp->mapa[l][c][z].valor == composto){
-							qtd++;
+						if(mp->mapa[l][c][z].valor != composto){
+							break;
 						}
+						qtd++;
 					}
 					if(qtd > *camadas){
 						maisEspesso = mp->mapa[l][c][p];
@@ -161,97 +181,19 @@ Ponto camadaMaisEspessaComposto(Mapeamento *mp, int *camadas, int composto){
 	return maisEspesso;
 }
 
-//Retorna um array com [profundidade],[area],[x],[y], sendo x e y as coordenadas centrais
-int *fundoDoMar(Mapeamento *mp){
-	int compostoAlvo = 0;
-	int valorReposicao = -1;
-	int l, c, p;
-	for(l = 0; l < mp->l; l++){
-		for(c = 0; c < mp->c; c++){
-			for(p = 0; p < mp->p; p++){
-				if(p+1 < mp->p){
-					if(mp->mapa[l][c][p].valor == compostoAlvo && mp->mapa[l][c][p+1].valor != compostoAlvo){
-						mp->mapa[l][c][p+1].valor = valorReposicao;
-					}
-				}
-			}
-		}
-	}
-	/*array maiorArea [profundidade],[area],[x],[y]
-	* x e y sendo as coordenadas centrais
-	*/
-	int maiorArea[4] = {0,0};
-	for(p = 0; p < mp->p; p++){
-		int area = 0;
-		for(l = 0; l < mp->l; l++){
-			for(c = 0; c < mp->c; c++){
-				if(mp->mapa[l][c][p].valor == valorReposicao){
-					area++;
-				}
-			}
-		}
-		if(area > maiorArea[1]){
-			maiorArea[0] = p;
-			maiorArea[1] = area;
-		}
-	}
-
-
-	/*		/--------------y-------------/
-	*		/[				 ][			][	][			 ]
-	*		|[				 ][			][	][			 ]
-	*		x[				 ][cima	][-1][direita]
-	*		|[esquerda][	-1	][-1][			 ]
-	*		/[				 ][baixo][-1][			 ]
-	*/
-	Ponto esq = {0,0,mp->l,maiorArea[0]};
-	Ponto dir = {0,0,0,maiorArea[0]};
-	Ponto cima = {0,mp->c,0,maiorArea[0]};
-	Ponto baixo = {0,0,0,maiorArea[0]};
-	for(l = 0; l < mp->l; l++){
-		for(c = 0; c < mp->c; c++){
-			Ponto atual = mp->mapa[l][c][maiorArea[0]];
-
-			if(atual.valor == valorReposicao){
-				if(atual.y < esq.y){
-					esq = atual;
-				}else if(atual.y > dir.y){
-					dir = atual;
-				}
-
-				if(atual.x < cima.x){
-					cima = atual;
-				}else if(atual.x > baixo.x){
-					baixo = atual;
-				}
-			}
-		}
-	}
-
-	maiorArea[2] = dir.y - esq.y;
-	maiorArea[3] = baixo.x - cima.x;
-	return maiorArea;
-}
-
-bool pontoEstaNoMapa(Mapeamento *mp, Ponto *pt){
-	if(pt->x < 0 || pt->x >= mp->l || pt->y < 0 || pt->y >= mp->c || pt->z < 0 || pt->z >= mp->p){
-		return false;
-	}
-	return true;
-}
-
 //Retorn quantas vezes a função foi chamada (ou quantos pontos alvo foram trocados)
 int floodFill2D(Mapeamento *mp, Ponto *pt, int compostoAlvo, int valorReposicao){
 	int execucoes = 0; //quantas vezes ele foi executado
 	if(!pontoEstaNoMapa(mp, pt)){
-		return;
+		return execucoes;
 	}
 	if(pt->valor == valorReposicao){
-		return;
+		return execucoes;
 	}
 	if(pt->valor != compostoAlvo){
-		return;
+		return execucoes;
 	}
+	execucoes = 1;
 	int x = pt->x;
 	int y = pt->y;
 	int z = pt->z;
@@ -280,22 +222,94 @@ int floodFill2D(Mapeamento *mp, Ponto *pt, int compostoAlvo, int valorReposicao)
 	return execucoes;
 }
 
+//Retorna um array com [profundidade],[area],[x],[y], sendo x e y as coordenadas centrais
+int *fundoDoMar(Mapeamento *mp){
+	int areaPlana[4] = {0, 0}; //[profundidade],[area],[x],[y]
+	int l, c, p, valorReposicao = -1, i;
+
+	for(p = 0; p < mp->p; p++){
+		for(l = 0; l < mp->l; l++){
+			for(c = 0; c < mp->c; c++){
+				Ponto pt = mp->mapa[l][c][p];
+				if(isFundoDoMar(mp, &pt)){ //Se verdade, então elemento abaixo é diferente de água
+					Ponto abaixo = {0, pt.x, pt.y, pt.z+1};
+					if(pontoEstaNoMapa(mp, &abaixo)){
+						mp->mapa[l][c][p+1].valor = valorReposicao;
+					}
+				}
+			}
+		}
+	}
+	//Ao fim dos loops, todo o fundo do mar terá valor -1
+
+	for(p = 0; p < mp->p; p++){
+		for(l = 0; l < mp->l; l++){
+			for(c = 0; c < mp->c; c++){
+				Ponto pt = mp->mapa[l][c][p];
+				if(pt.valor == -1){
+					valorReposicao--;
+					int area = floodFill2D(mp, &pt, pt.valor, valorReposicao);
+					if(area > areaPlana[1]){
+						areaPlana[0] = p;
+						areaPlana[1] = area;
+						i = valorReposicao;
+					}
+				}
+			}
+		}
+	}
+
+	areaPlana[1] = 0;
+
+	Ponto esq = {0,0,mp->l,areaPlana[0]};
+	Ponto dir = {0,0,0,areaPlana[0]};
+	Ponto cima = {0,mp->c,0,areaPlana[0]};
+	Ponto baixo = {0,0,0,areaPlana[0]};
+	for(l = 0; l < mp->l; l++){
+		for(c = 0; c < mp->c; c++){
+			Ponto atual = mp->mapa[l][c][areaPlana[0]];
+			if(atual.valor == i){ // i contém o valor de reposição da maior área plana
+				areaPlana[1] += 1;
+				if(atual.y < esq.y){
+					esq = atual;
+				}
+				if(atual.y > dir.y){
+					dir = atual;
+				}
+
+				if(atual.x < cima.x){
+					cima = atual;
+				}
+				if(atual.x > baixo.x){
+					baixo = atual;
+				}
+			}
+		}
+	}
+
+	areaPlana[2] = (dir.y + esq.y)/2;
+	areaPlana[3] = (baixo.x + cima.x)/2;
+
+	return &areaPlana;
+}
+
 //Mesma coisa que o 2D, mas com 3 dimensões.
 int floodFill3D(Mapeamento *mp, Ponto *pt, int compostoAlvo, int valorReposicao){
 	int execucoes = 0;
 	if(!pontoEstaNoMapa(mp, pt)){
-		return;
+		return 0;
 	}
 	if(pt->valor == valorReposicao){
-		return;
+		return 0;
 	}
 	if(pt->valor != compostoAlvo){
-		return;
+		return 0;
 	}
 	int x = pt->x;
 	int y = pt->y;
 	int z = pt->z;
 	mp->mapa[x][y][z].valor = valorReposicao;
+	execucoes = 1;
 
 	Ponto acima = {0, x, y, z-1}; //valor, x, y, z
 	if(pontoEstaNoMapa(mp, &acima)){
@@ -338,6 +352,7 @@ int floodFill3D(Mapeamento *mp, Ponto *pt, int compostoAlvo, int valorReposicao)
 	return execucoes;
 }
 
+//Retorna a profundidade que possui mais petroleo conexo
 int profundidadeMaisPetroleoConexo(Mapeamento *mp){
 	int l, c, p;
 	Mapeamento petroleo;
@@ -363,6 +378,38 @@ int profundidadeMaisPetroleoConexo(Mapeamento *mp){
 	return profundidade[0];
 }
 
+//Retorna o volume do maior "agrupamento" (maior região conexa) de um composto
+int maiorVolumeConexoComposto(Mapeamento *mp, int composto){
+	int l, c, p, volume = 0, i = -1;
+	Ponto pontoI = {i,0,0,0}; //ponto que gera um flood fill no maior volume encontrado
+
+	for(p = 0; p < mp->p; p++){
+		for(l = 0; l < mp->l; l++){
+			for(c = 0; c < mp->c; c++){
+				Ponto pt = mp->mapa[l][c][p];
+				if(pt.valor == composto){
+					int vl = floodFill3D(mp, &pt, composto, i);
+					pt.valor = i;
+					if(vl > volume){
+						if(i != -1){
+							floodFill3D(mp, &pontoI, pontoI.valor, composto);
+						}
+						volume = vl;
+						pontoI = pt;
+					}else{
+						floodFill3D(mp, &pt, i, composto);
+					}
+					--i;
+				}
+			}
+		}
+	}
+
+	floodFill3D(mp, &pontoI, pontoI.valor, -1); //Retorno para -1 para poder reutilizar
+	return volume;
+}
+
+//Retorna o composto que possui o maior volume conexo
 int compostoMaiorVolumeConexo(Mapeamento *mp){
 	//array [composto][volume]
 	int compostoMaiorVl[2];
@@ -388,6 +435,7 @@ int compostoMaiorVolumeConexo(Mapeamento *mp){
 }
 
 int main(int argc, char *argv[]){
+	iniciaCompostos(); //É necessário inicar os compostos
 	Mapeamento mp;
 
 	leTamanhoMapeamento(&mp.l, &mp.c, &mp.p);
@@ -397,7 +445,7 @@ int main(int argc, char *argv[]){
 
 	//Questão 1
 	Ponto maisProfundo = maiorProfundidadeMar(&mp);
-	printf("Área explorada de %dKm² com maior profundidade na coordenada: %d x %d\n", mp.l*mp.c*100, maisProfundo.x, maisProfundo.y);
+	printf("Area explorada de %dKm² com maior profundidade na coordenada: %d x %d\n", mp.l*mp.c*100, maisProfundo.x, maisProfundo.y);
 
 	//Questão 2
 	List compostos;
@@ -412,7 +460,7 @@ int main(int argc, char *argv[]){
 	equalizeMapeamento(&mp, &fundoMar);
 	int *area;
 	area = (int *) fundoDoMar(&fundoMar);
-	printf("Maior área plana no fundo do mar: %dkm² (coordenadas centrais %d x %d)\n",
+	printf("Maior area plana no fundo do mar: %dkm² (coordenadas centrais %d x %d)\n",
 					area[1]*100, area[2], area[3]);
 	freeMapeamento(&fundoMar);
 
@@ -431,32 +479,32 @@ int main(int argc, char *argv[]){
 	//Questão 5
 	int camadas;
 	Ponto maisEspesso = camadaMaisEspessaComposto(&mp, &camadas, 2);
-	printf("Coordenada com a maior espessura de uma camada contínua de petróleo: ");
+	printf("Coordenada com a maior espessura de uma camada continua de petroleo: ");
 	printf("%d x %d com %d metros\n", maisEspesso.x, maisEspesso.y, camadas*1000);
 
 	//Questão 6
 	int profundidade = profundidadeMaisPetroleoConexo(&mp);
-	printf("Profundidade com a maior área conexa de petróleo: %d metros\n", profundidade*1000);
+	printf("Profundidade com a maior area conexa de petroleo: %d metros\n", profundidade*1000);
 
 	//Questão 7
 	Mapeamento petroleo;
 	equalizeMapeamento(&mp, &petroleo);
-	Ponto pt = petroleo.mapa[2][1][2];
-	int volume = floodFill3D(&petroleo, &pt, 2, -1);
-	printf("Maior volume de petróleo em região conexa: %dKm³\n",
-				//Cada "cubo" tem dimensões x e y = 10Km e z = 1km. Logo, cada cubo tem 100Km³, ou, 100000000000m³
+	int volume = maiorVolumeConexoComposto(&petroleo, PETROLEO);
+	printf("Maior volume de petroleo em regiao conexa: %dKm³\n",
+				//Cada "cubo" tem dimensões x e y = 10Km e z = 1km. Logo, cada cubo tem 100Km³, ou, 100.000.000.000m³
 				volume*100);
 
 	//Questão 8
 	maisEspesso = camadaMaisEspessaComposto(&petroleo, &camadas, -1);
-	printf("Coordenada %d x %d tem a maior espessura da região conexa de petróleo com %d quilômetros cúbicos\n",
+	printf("Coordenada %d x %d tem a maior espessura da regiao conexa de petroleo com %d quilometros cubicos\n",
 				maisEspesso.x, maisEspesso.y, camadas*100);
 	freeMapeamento(&petroleo);
 
 	//Questão 9
 	int composto = compostoMaiorVolumeConexo(&mp);
-	printf("Dentre os %d compostos encontrados na área, a %s tem o maior volume conexo.\n",
+	printf("Dentre os %d compostos encontrados na area, a %s tem o maior volume conexo.\n",
 				compostos.size, COMPOSTOS[composto]);
+
 	freeList(&compostos);
 	freeMapeamento(&mp);
 	return;

@@ -6,3 +6,5 @@ exemplo-bk.c
 list
 *.txt
 *.exe
+!LEIAME.txt
+saida
