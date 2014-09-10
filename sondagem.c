@@ -5,10 +5,12 @@
 #include "mapeamento.c" //Tipo Mapeamento e Ponto
 #include "compostos.c" //Deinições dos compostos
 
+//Retorna true se o ponto esta no mapa, false caso contrario
 bool pontoEstaNoMapa(Mapeamento *mp, Ponto *pt){
 	return !(pt->x < 0 || pt->x >= mp->l || pt->y < 0 || pt->y >= mp->c || pt->z < 0 || pt->z >= mp->p);
 }
 
+//Retorna true se determinado ponto pt é o último ponto com valor AGUA da coluna
 bool isFundoDoMar(Mapeamento *mp, Ponto *pt){
 	Ponto acima = {-1, pt->x, pt->y, pt->z-1};
 	if(pontoEstaNoMapa(mp, &acima)){
@@ -431,7 +433,7 @@ int compostoMaiorVolumeConexo(Mapeamento *mp){
 }
 
 int main(int argc, char *argv[]){
-	iniciaCompostos();
+	iniciaCompostos(); //É necessário inicar os compostos
 	Mapeamento mp;
 
 	leTamanhoMapeamento(&mp.l, &mp.c, &mp.p);
