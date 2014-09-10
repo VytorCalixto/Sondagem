@@ -1,3 +1,3 @@
 all:
-  gcc sondagem.c -o sondagem
-  gcc geraMapa.c -o gera
+	gcc sondagem.c -o sondagem -w
+	gcc geraMapa.c -o gera
