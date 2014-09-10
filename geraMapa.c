@@ -12,7 +12,6 @@
 *			Muitas rochas, baixa probabilidade de materiais preciosos, combustíveis fósseis e outros
 *
 */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -31,7 +30,7 @@ bool pontoEstaNoMapa(Mapeamento *mp, Ponto *pt);
 
 void randomFloodFill(Mapeamento *mp, Ponto *inicial, int valorReposicao);
 
-int main(int argc, char *argv[]){
+void main(int argc, char *argv[]){
 	iniciaCompostos();
 	srand(time(NULL));
 	Mapeamento mp;
@@ -45,8 +44,20 @@ int main(int argc, char *argv[]){
 	}
 
 	geraMapeamento(&mp);
-	printf("%d %d %d\n", mp.l, mp.c, mp.p);
-	imprimeMapeamento(&mp);
+	FILE *mapa;
+	mapa = fopen("mapa.txt", "w");
+	fprintf(mapa,"%d %d %d\n", mp.l, mp.c, mp.p);
+	int l, c, p;
+	for(p = 0; p < mp.p; p++){
+		for(l = 0; l < mp.l; l++){
+			for(c = 0; c < mp.c; c++){
+				fprintf(mapa, "%d ", mp.mapa[l][c][p]);
+			}
+			fprintf(mapa, "\n");
+		}
+		fprintf(mapa, "\n");
+	}
+	fclose(mapa);
 }
 
 void geraMapeamento(Mapeamento *mp){
@@ -105,7 +116,7 @@ void geraPonto(Mapeamento *mp, Ponto *pontoAtual){
 
 		case 1 ... 5:
 			if(mp->mapa[x][y][z-1].valor == AGUA){
-				a = rand() % 3;
+				a = rand() % 2;
 				if(a != 0){
 					randomFloodFill(mp, pontoAtual, AGUA);
 				}else{
@@ -121,14 +132,14 @@ void geraPonto(Mapeamento *mp, Ponto *pontoAtual){
 					randomFloodFill(mp, pontoAtual, mp->mapa[x][y][z-1].valor);
 				}else{
 					a = (rand() % 255) + 1;
-					while(!estaNoArray(ROCHAS, a) && !estaNoArray(METAIS, a)){
+					while(!estaNoArray(ROCHAS, a) && !estaNoArray(METAIS, a) && !estaNoArray(COMBUSTIVEIS, a)){
 						a = (rand() % 255) + 1;
 					}
 					randomFloodFill(mp, pontoAtual, a);
 				}
 			}else{
 				a = (rand() % 255) + 1;
-				while(!estaNoArray(ROCHAS, a) && !estaNoArray(METAIS, a)){
+				while(!estaNoArray(ROCHAS, a) && !estaNoArray(METAIS, a) && !estaNoArray(COMBUSTIVEIS, a)){
 					a = (rand() % 255) + 1;
 				}
 				randomFloodFill(mp, pontoAtual, a);
@@ -146,7 +157,7 @@ void geraPonto(Mapeamento *mp, Ponto *pontoAtual){
 						randomFloodFill(mp, pontoAtual, SAL);
 					}else{
 						a = (rand() % 255) + 1;
-						while(!estaNoArray(ROCHAS, a)){
+						while(!estaNoArray(ROCHAS, a) &&  !estaNoArray(METAIS, a)){
 							a = (rand() % 255) + 1;
 						}
 						randomFloodFill(mp, pontoAtual, a);
@@ -195,7 +206,7 @@ void randomFloodFill(Mapeamento *mp, Ponto *inicio, int valorReposicao){
 	if(inicio->valor == valorReposicao){
 		return;
 	}
-	if(inicio->valor > 0){ // > 0 significa que é um composto e, portanto, já foi preenchido
+	if(inicio->valor >= 0){ // >= 0 significa que é um composto e, portanto, já foi preenchido
 		return;
 	}
 	int x = inicio->x;
@@ -207,6 +218,7 @@ void randomFloodFill(Mapeamento *mp, Ponto *inicio, int valorReposicao){
 	int r2 = rand() % 4;
 	int r3 = rand() % 4;
 	int r4 = rand() % 4;
+	int r5 = rand() % 19;
 	if(r1 == 0){
 		Ponto esq = {-1, x, y-1, z}; //valor, x, y, z
 		if(pontoEstaNoMapa(mp, &esq)){
@@ -234,6 +246,13 @@ void randomFloodFill(Mapeamento *mp, Ponto *inicio, int valorReposicao){
 			baixo = mp->mapa[x+1][y][z];
 		}
 		randomFloodFill(mp, &baixo, valorReposicao);
+	}
+	if(r5 == 0){
+		Ponto embaixo = {-1, x, y, z+1}; //valor, x, y, z
+		if(pontoEstaNoMapa(mp, &embaixo)){
+			embaixo = mp->mapa[x][y][z+1];
+		}
+		randomFloodFill(mp, &embaixo, valorReposicao);
 	}
 	return;
 }

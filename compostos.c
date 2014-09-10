@@ -35,8 +35,8 @@ char *COMPOSTOS[256] = {"agua", "gas natural", "petroleo", "carvao", "xisto",
 
 //Primeiro espaço é o tamanho
 int METAIS[8] = {8, OURO, PRATA, PLATINA, FERRO, MAGNESIO, NIQUEL, PALADIO};
-int ROCHAS[7] = {7, ROCHA, BASALTO, GRAFITE, CRISTAL, CORAL, CALCARIO};
-int COMBUSTIVEIS[5] = {5, GAS, PETROLEO, CARVAO, XISTO};
+int ROCHAS[8] = {8, ROCHA, BASALTO, GRAFITE, CRISTAL, CORAL, CALCARIO, XISTO};
+int COMBUSTIVEIS[4] = {4, GAS, PETROLEO, CARVAO};
 
 void iniciaCompostos(){
   int i;
