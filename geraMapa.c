@@ -51,7 +51,7 @@ void main(int argc, char *argv[]){
 	for(p = 0; p < mp.p; p++){
 		for(l = 0; l < mp.l; l++){
 			for(c = 0; c < mp.c; c++){
-				fprintf(mapa, "%d ", mp.mapa[l][c][p]);
+				fprintf(mapa, "%d ", mp.mapa[l][c][p].valor);
 			}
 			fprintf(mapa, "\n");
 		}
