@@ -22,6 +22,8 @@
 #define MAGNESIO 20
 #define NIQUEL 21
 #define PALADIO 22
+#define CORAL 23
+#define CALCARIO 24
 
 #define DESCONHECIDO 255
 
@@ -29,15 +31,16 @@ char *COMPOSTOS[256] = {"agua", "gas natural", "petroleo", "carvao", "xisto",
                         "rocha", "uranio", "silica", "ouro", "diamante",
                         "cristal", "sal", "selenio", "polonio", "prata",
                         "platina", "grafite", "fossil", "ferro", "basalto",
-                        "magnesio", "niquel", "paladio"};
+                        "magnesio", "niquel", "paladio", "coral", "calcario"};
 
 //Primeiro espaço é o tamanho
 int METAIS[8] = {8, OURO, PRATA, PLATINA, FERRO, MAGNESIO, NIQUEL, PALADIO};
+int ROCHAS[7] = {7, ROCHA, BASALTO, GRAFITE, CRISTAL, CORAL, CALCARIO};
 int COMBUSTIVEIS[5] = {5, GAS, PETROLEO, CARVAO, XISTO};
 
 void iniciaCompostos(){
   int i;
-  for(i = 23; i < 256; i++){
+  for(i = 25; i < 256; i++){
     COMPOSTOS[i] = "desconhecido";
   }
 
