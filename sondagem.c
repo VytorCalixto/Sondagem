@@ -287,8 +287,8 @@ int *fundoDoMar(Mapeamento *mp){
 		}
 	}
 
-	areaPlana[2] = (dir.y + esq.y)/2;
-	areaPlana[3] = (baixo.x + cima.x)/2;
+	areaPlana[2] = (baixo.x + cima.x)/2;
+	areaPlana[3] = (dir.y + esq.y)/2;
 
 	return &areaPlana;
 }
