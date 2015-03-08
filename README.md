@@ -2,7 +2,7 @@
 ### Trabalho 1 de Oficina de Programação (2014/2)
 ###### Trabalho feito por Vytor Calixto
 
-## Sobre o Trbalho
+## Sobre o Trabalho
 A especificação pode ser encontrada no arquivo trabalho1_ci067_2014_2_ret.pdf.
 
 ## Como executar
